@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #define ln cout << endl;
 using namespace std;
 
@@ -154,4 +155,43 @@ void readGraphAdjMatrix(graph G) {
     ln;
     P = P->next;
   }
+}
+
+bool isMember(vector<int> stacks, int x) {
+    if(!stacks.empty()) {
+        while(!stacks.empty() && stacks.back() != x) stacks.pop_back();
+        return !stacks.empty();
+    } else return false;
+}
+
+void viewDfs(graph G) {
+    if(!isEmpty(G)) {
+        vector<int> isVisited;
+        vector<int> output;
+        int smallest, awal;
+        adrNode P = G;
+        isVisited.push_back(P->info);
+        output.push_back(P->info);
+        while(!isVisited.empty()) {
+            if(P->firstEdge != NULL) {
+                // mencari nilai terkecil dari yang terhubung
+                // dengan catatan belum dikunjungi
+                adrEdge Q = P->firstEdge;
+                smallest = (Q->info)->info;
+                awal = smallest;
+                while(Q != NULL) {
+                    Q = Q->next;
+                    if((Q != NULL) && !isMember(isVisited, (Q->info)->info)) smallest = (Q->info)->info;
+                }
+                // memasukkan nilai nya kedalam output dan isVisited
+                if(smallest == awal && isMember(isVisited, smallest)) isVisited.pop_back();
+                else {
+                    isVisited.push_back(smallest);
+                    output.push_back(smallest);
+                }
+            } else isVisited.pop_back();        
+            P = searchNode(G, isVisited.back());
+        }
+        for(int i = 0;i < output.size();i++) cout << output[i] << " ";
+    } else cout << "Empty Graph";
 }
