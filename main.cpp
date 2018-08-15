@@ -24,7 +24,7 @@ int main() {
     readGraphbyAdjList(G);ln;
     readGraphAdjMatrix(G);
     ln;
-    viewDfs(G);
+    viewDfs(G,8);
     ln;
 
     return 0;
