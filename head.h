@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #define ln cout << endl;
 using namespace std;
 
@@ -45,6 +46,20 @@ adrNode searchNode(graph G, int x) {
         return (P->info == x) ? P : NULL;
     } else return NULL;
 };
+
+bool inVector(vector<int> list, int x) {
+  bool status = false;
+  if(!list.empty()) {
+    sort(list.begin(), list.end());
+    int i = 0;
+    if(x == list.back()) status = true;
+    else {
+      while(i < list.size() && x <= list[i] && x != list[i]) i++;
+      (list[i] == x) ? status = true : status = false;
+    }
+  }
+  return status;
+}
 
 void insertNode(graph &G, int x) {
     adrNode P = createNode(x);
@@ -164,34 +179,41 @@ bool isMember(vector<int> stacks, int x) {
     } else return false;
 }
 
-void viewDfs(graph G) {
-    if(!isEmpty(G)) {
-        vector<int> isVisited;
-        vector<int> output;
-        int smallest, awal;
-        adrNode P = G;
-        isVisited.push_back(P->info);
+void viewDfs(graph G, int x) {
+    vector<int> visited,output,stacks;
+    if(isEmpty(G))
+      cout << "Empty Graph";
+    else {
+      if(searchNode(G,x) == NULL) cout << "Node Not Found";
+      else {
+        // initial State
+        int y = x;
+        adrNode P = searchNode(G,y);
+        visited.push_back(P->info);
         output.push_back(P->info);
-        while(!isVisited.empty()) {
-            if(P->firstEdge != NULL) {
-                // mencari nilai terkecil dari yang terhubung
-                // dengan catatan belum dikunjungi
-                adrEdge Q = P->firstEdge;
-                smallest = (Q->info)->info;
-                awal = smallest;
-                while(Q != NULL) {
-                    Q = Q->next;
-                    if((Q != NULL) && !isMember(isVisited, (Q->info)->info)) smallest = (Q->info)->info;
-                }
-                // memasukkan nilai nya kedalam output dan isVisited
-                if(smallest == awal && isMember(isVisited, smallest)) isVisited.pop_back();
-                else {
-                    isVisited.push_back(smallest);
-                    output.push_back(smallest);
-                }
-            } else isVisited.pop_back();        
-            P = searchNode(G, isVisited.back());
+        stacks.push_back(P->info);
+        // loop until stacks empty
+        while(!stacks.empty()) {
+          P = searchNode(G, stacks.back());
+          if(P->firstEdge != NULL) {
+            // find the smallest int
+            int smallest = ((P->firstEdge)->info)->info;
+            adrEdge A = P->firstEdge;
+            while(A->next != NULL) {
+              if(smallest > (A->info)->info && inVector(visited, (A->info)->info)) smallest = (A->info)->info;
+              A = A->next;
+            }
+            // jika sudah dapat yg paling kecil kunjungi
+            stacks.push_back(smallest);
+            output.push_back(smallest);
+            visited.push_back(smallest);
+          } else stacks.pop_back();
         }
-        for(int i = 0;i < output.size();i++) cout << output[i] << " ";
-    } else cout << "Empty Graph";
+        // print the result
+        while(!output.empty()) {
+          cout << output.back() << " ";
+          output.pop_back();
+        }
+      }
+    }
 }
